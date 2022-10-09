@@ -33,6 +33,9 @@ export default function Home() {
   }, [])
 
   const trackSelected = (event, release, index) => {
+    if (!playerRef.current) {
+      playerRef.current = document.querySelector('#audio')
+    }
     event.preventDefault()
     activeIndexRef.current = index
     if (track === release.metadata.animation_url) {
