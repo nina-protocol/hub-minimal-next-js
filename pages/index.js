@@ -134,7 +134,7 @@ export default function Home() {
           {toggledIds.includes(i) && (
             <div className='ml-2 mb-4 mt-2'>
               <img src={release.metadata.image} />
-              <p className='mt-2'>{release.metadata.descriptionHtml}</p>
+              <p className='mt-2'>{release.metadata.description}</p>
               <p className='mt-2'>
                 <span>{release.accountData.release.remainingSupply} / {release.accountData.release.totalSupply} Remaining |</span> 
                 <span> {release.accountData.release.price / 1000000} USDC</span>
