@@ -7,6 +7,7 @@ export default function Home() {
   const [isPlaying, setIsPlaying] = useState(false)
   const [duration, setDuration] = useState(0)
   const [trackProgress, setTrackProgress] = useState(0)
+  const [toggledIds, setToggledIds] = useState([])
 
   const playerRef = useRef()
   const activeIndexRef = useRef(0)
@@ -39,11 +40,15 @@ export default function Home() {
         playerRef.current.pause()
         setIsPlaying(false)
       } else {
+        setTrackProgress(0)
+        setDuration(0)
         playerRef.current.play()
         setIsPlaying(true)
         startTimer()
       }
     } else {
+      setTrackProgress(0)
+      setDuration(0)
       playerRef.current.src = release.metadata.animation_url
       setTrack(release.metadata.animation_url)
       setIsPlaying(true)
@@ -78,7 +83,9 @@ export default function Home() {
     if (hasNext) {
       setTrackProgress(0)
       activeIndexRef.current = activeIndexRef.current + 1
+      playerRef.current.src = hubData.releases[activeIndexRef.current].metadata.animation_url
       setTrack(hubData.releases[activeIndexRef.current].metadata.animation_url)
+      playerRef.current.play()
       startTimer()
     } else {
       // This means we've reached the end of the playlist
@@ -86,24 +93,51 @@ export default function Home() {
       setTrackProgress(0)
     }
   }
+  const toggle = (e, i) => {
+    e.preventDefault()
+    e.stopPropagation()
 
-  if (!hubData) {
-    return <div>Loading...</div>
+    if (toggledIds.includes(i)) {
+      setToggledIds(toggledIds.filter((id) => id !== i))
+    } else {
+      setToggledIds([...toggledIds, i])
+    }
   }
 
-  console.log('hubData', hubData)
-
+  if (!hubData) {
+    return <p className='mt-2 ml-2 font-mono text-sm'>Loading...</p>
+  }
   return (
-    <div>
+    <div className='font-mono text-sm max-w-lg'>
       <p className='mt-2 ml-2'>{hubData.hub.data.displayName}</p>
-      <p className='ml-2 mb-6'>{hubData.hub.data.description}</p>
+      <p className='mt-2 ml-2 mb-6'>{hubData.hub.data.description}</p>
       {hubData.releases.sort((a,b) => b.accountData.hubContent.datetime - a.accountData.hubContent.datetime).map((release, i) => (
         <>
-          <p className='ml-2'
-             onClick={(e) => trackSelected(e, release, i)}>
-            {activeIndexRef.current === i && (isPlaying ? <span>[Now Playing] </span> : <span>[Paused] </span>)}
-            {release.metadata.properties.artist} - {release.metadata.properties.title}
+          <p className={`ml-2 ${activeIndexRef.current === i ? 'font-bold' : ''}`}>
+            <span 
+              className='cursor-pointer'
+              onClick={(e) => toggle(e, i)}
+            >
+              {toggledIds.includes(i) ? `[-] ` : `[+] `}
+            </span>
+            <span 
+              className='cursor-pointer'
+              onClick={(e) => trackSelected(e, release, i)}
+            >
+              {activeIndexRef.current === i && (isPlaying ? <span>[Now Playing - {Math.round((trackProgress / duration) * 100) || 0}%] </span> : <span>[Paused] </span>)}
+              {process.env.SHOW_ARTIST_NAME && (`${release.metadata.properties.artist} - `)}{release.metadata.properties.title}
+            </span>
           </p>
+          {toggledIds.includes(i) && (
+            <div className='ml-2 mb-4 mt-2'>
+              <img src={release.metadata.image} />
+              <p className='mt-2'>{release.metadata.descriptionHtml}</p>
+              <p className='mt-2'>
+                <span>{release.accountData.release.remainingSupply} / {release.accountData.release.totalSupply} Remaining |</span> 
+                <span> {release.accountData.release.price / 1000000} USDC</span>
+              </p>
+            </div>
+          )}
         </>
       ))}
       <audio id="audio" style={{ width: '100%' }}>
