@@ -107,45 +107,78 @@ export default function Home() {
     }
   }
 
+  const seek = (e) => {
+    const percent = e.nativeEvent.offsetX / e.currentTarget.offsetWidth
+    playerRef.current.currentTime = percent * playerRef.current.duration
+    setTrackProgress(Math.ceil(playerRef.current.currentTime))
+  }
+
   if (!hubData) {
     return <p className='mt-2 ml-2 font-mono text-sm'>Loading...</p>
   }
   return (
-    <div className='font-mono text-sm max-w-lg'>
-      <p className='mt-2 ml-2'>{hubData.hub.data.displayName}</p>
-      <p className='mt-2 ml-2 mb-6'>{hubData.hub.data.description}</p>
-      {hubData.releases.sort((a,b) => b.accountData.hubContent.datetime - a.accountData.hubContent.datetime).map((release, i) => (
-        <>
-          <p className={`ml-2 ${activeIndexRef.current === i ? 'font-bold' : ''}`}>
-            <span 
-              className='cursor-pointer'
-              onClick={(e) => toggle(e, i)}
-            >
-              {toggledIds.includes(i) ? `[-] ` : `[+] `}
-            </span>
-            <span 
-              className='cursor-pointer'
-              onClick={(e) => trackSelected(e, release, i)}
-            >
-              {activeIndexRef.current === i && (isPlaying ? <span>[Now Playing - {Math.round((trackProgress / duration) * 100) || 0}%] </span> : <span>[Paused] </span>)}
-              {process.env.SHOW_ARTIST_NAME && (`${release.metadata.properties.artist} - `)}{release.metadata.properties.title}
-            </span>
-          </p>
-          {toggledIds.includes(i) && (
-            <div className='ml-2 mb-4 mt-2'>
-              <img src={release.metadata.image} />
-              <p className='mt-2'>{release.metadata.description}</p>
-              <p className='mt-2'>
-                <span>{release.accountData.release.remainingSupply} / {release.accountData.release.totalSupply} Remaining |</span> 
-                <span> {release.accountData.release.price / 1000000} USDC</span>
+    <div className='flex flex-col h-screen justify-between font-mono text-sm'>
+      <div className='max-w-lg pb-10'>
+        <p className='mt-2 ml-2'>{hubData.hub.data.displayName}</p>
+        <p className='mt-2 ml-2 mb-6'>{hubData.hub.data.description}</p>
+        {hubData.releases.sort((a,b) => b.accountData.hubContent.datetime - a.accountData.hubContent.datetime).map((release, i) => (
+          <>
+            <hr />
+            <div className='w-full'>
+              <p className={`ml-2 z-100 ${activeIndexRef.current === i ? 'font-bold' : ''}`}>
+                <span 
+                  className='cursor-pointer'
+                  onClick={(e) => toggle(e, i)}
+                >
+                  {toggledIds.includes(i) ? `[-] ` : `[+] `}
+                </span>
+                <span 
+                  className='cursor-pointer text-ellipsis'
+                  onClick={(e) => trackSelected(e, release, i)}
+                >
+                  {process.env.SHOW_ARTIST_NAME && (`${release.metadata.properties.artist} - `)}{release.metadata.properties.title}
+                </span>
               </p>
             </div>
-          )}
-        </>
-      ))}
-      <audio id="audio" style={{ width: '100%' }}>
-        <source src={track} type="audio/mp3" />
-      </audio>
+            {toggledIds.includes(i) && (
+              <div className='ml-2 mb-2 mt-2'>
+                <img src={release.metadata.image} />
+                <p className='mt-2'>{release.metadata.description}</p>
+                <p className='mt-2'>
+                  <span>{release.accountData.release.remainingSupply} / {release.accountData.release.totalSupply} Remaining |</span> 
+                  <span> {release.accountData.release.price / 1000000} USDC</span>
+                </p>
+              </div>
+            )}
+          </>
+        ))}
+        <audio id="audio" style={{ width: '100%' }}>
+          <source src={track} type="audio/mp3" />
+        </audio>
+      </div>
+      <footer className='h-10 fixed bottom-0 w-full max-w-lg'>
+        <div className='bg-white h-full border-2 border-black justify-between'>
+          <div className='h-1/2 truncate'>
+            <button
+              className='mr-4'
+              onClick={(e) => trackSelected(e, hubData.releases[activeIndexRef.current], activeIndexRef.current)}
+            >
+              {isPlaying ? `Pause` : `Play`}
+            </button>
+            {hubData.releases[activeIndexRef.current].metadata.properties.artist} - {hubData.releases[activeIndexRef.current].metadata.properties.title}
+          </div>
+          <div
+            className='h-1/2 w-full'
+            onClick={(e) => seek(e)}
+          >
+            <div 
+              id='seek'
+              className='bg-black h-full'
+              style={{ width: `${(trackProgress / duration * 100) || 0}%` }}
+             />
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }
