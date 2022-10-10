@@ -117,7 +117,7 @@ export default function Home() {
     return <p className='mt-2 ml-2 font-mono text-sm'>Loading...</p>
   }
   return (
-    <div className='flex flex-col h-screen justify-between font-mono text-sm'>
+    <div className='flex flex-col h-screen justify-between font-mono text-sm overflow-x-hidden'>
       <div className='max-w-lg pb-10'>
         <p className='mt-2 ml-2'>{hubData.hub.data.displayName}</p>
         <p className='mt-2 ml-2 mb-6'>{hubData.hub.data.description}</p>
@@ -125,7 +125,7 @@ export default function Home() {
           <>
             <hr />
             <div className='w-full'>
-              <p className={`ml-2 z-100 ${activeIndexRef.current === i ? 'font-bold' : ''}`}>
+              <p className={`ml-2 mr-2 z-100 ${activeIndexRef.current === i ? 'font-bold' : ''} ${toggledIds.includes(i) ? '' : 'truncate'}`}>
                 <span 
                   className='cursor-pointer'
                   onClick={(e) => toggle(e, i)}
@@ -141,7 +141,7 @@ export default function Home() {
               </p>
             </div>
             {toggledIds.includes(i) && (
-              <div className='ml-2 mb-2 mt-2'>
+              <div className='m-2'>
                 <img src={release.metadata.image} />
                 <p className='mt-2'>{release.metadata.description}</p>
                 <p className='mt-2'>
