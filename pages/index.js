@@ -156,7 +156,7 @@ export default function Home() {
           <source src={track} type="audio/mp3" />
         </audio>
       </div>
-      <footer className='h-10 fixed bottom-0 w-full max-w-lg'>
+      <footer className='h-10 fixed bottom-0 w-full'>
         <div className='bg-white h-full border-2 border-black justify-between'>
           <div className='h-1/2 truncate'>
             <button
