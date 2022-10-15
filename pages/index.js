@@ -114,14 +114,30 @@ export default function Home() {
   }
 
   if (!hubData) {
-    return <p className='mt-2 ml-2 font-mono text-sm'>Loading...</p>
+    return <p className='mt-2 ml-2 font-sans text-sm text-[#2f3291]'>Loading...</p>
   }
   return (
-    <div className='flex flex-col h-screen justify-between font-mono text-sm overflow-x-hidden'>
-      <div className='max-w-lg pb-10'>
-        <p className='mt-2 ml-2'>{hubData.hub.data.displayName}</p>
-        <p className='mt-2 ml-2 mb-6'>{hubData.hub.data.description}</p>
-        {hubData.releases.sort((a,b) => b.accountData.hubContent.datetime - a.accountData.hubContent.datetime).map((release, i) => (
+    <div className='flex flex-col h-screen justify-between font-sans text-sm overflow-x-hidden text-[#2f3291]'>
+      <div className='flex flex-row'>
+        <div className='max-w-lg pb-10'>
+          <p className='mt-2 ml-2'>29 Speedway: Channel Plus</p>
+          <div className='m-2'>
+            <img src='/images/channelplus.png' />
+          </div>
+          <p className='mt-2 ml-2 mb-6'>
+            Simple tides pull away at the strings that control your sight<br />
+            Anarchy is sound and sound is a fight<br />
+            Drifting into the night a call awakens you<br />
+            Algorithmic buzzing,<br />
+            Who makes music in the sewers?<br />
+            Must be the primordial ooze.<br />
+          </p>
+          <audio id="audio" style={{ width: '100%' }}>
+            <source src={track} type="audio/mp3" />
+          </audio>
+        </div>
+        <div className='pt-10 pb-10 w-1/2'>
+      {hubData.releases.sort((a,b) => b.accountData.hubContent.datetime - a.accountData.hubContent.datetime).map((release, i) => (
           <>
             <hr />
             <div className='w-full'>
@@ -140,9 +156,10 @@ export default function Home() {
                 </span>
               </p>
             </div>
+            {console.log(release.metadata)}
             {toggledIds.includes(i) && (
               <div className='m-2'>
-                <img src={release.metadata.image} />
+                {/* <img src={release.metadata.image} /> */}
                 <p className='mt-2'>{release.metadata.description}</p>
                 <p className='mt-2'>
                   <span>{release.accountData.release.remainingSupply} / {release.accountData.release.totalSupply} Remaining |</span> 
@@ -152,12 +169,11 @@ export default function Home() {
             )}
           </>
         ))}
-        <audio id="audio" style={{ width: '100%' }}>
-          <source src={track} type="audio/mp3" />
-        </audio>
+      </div>
+
       </div>
       <footer className='h-10 fixed bottom-0 w-full'>
-        <div className='bg-white h-full border-2 border-black justify-between'>
+        <div className='bg-white h-full border-2 border-[#2f3291] justify-between'>
           <div className='h-1/2 truncate'>
             <button
               className='mr-4'
@@ -173,7 +189,7 @@ export default function Home() {
           >
             <div 
               id='seek'
-              className='bg-black h-full'
+              className='bg-[#2f3291] h-full'
               style={{ width: `${(trackProgress / duration * 100) || 0}%` }}
              />
           </div>

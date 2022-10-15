@@ -11,6 +11,7 @@ module.exports = {
       },
       fontFamily: {
         'helvetica': ['Helvetica', 'Arial', 'sans-serif'],
+        'sans': ['Space Grotesk']
       }
     },
   },
