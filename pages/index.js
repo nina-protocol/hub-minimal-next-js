@@ -142,7 +142,7 @@ export default function Home() {
             <source src={track} type="audio/mp3" />
           </audio>
         </div>
-        <div className='md:pt-10 pb-10 max-w-lg md:w-1/2'>
+        <div className='md:pt-10 pb-10 md:w-1/2 ms:max-w-lg'>
       {hubData.releases.sort((a,b) => b.accountData.hubContent.datetime - a.accountData.hubContent.datetime).map((release, i) => (
           <>
             <hr />
