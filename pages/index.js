@@ -118,25 +118,31 @@ export default function Home() {
   }
   return (
     <div className='flex flex-col h-screen justify-between font-sans text-sm overflow-x-hidden text-[#2f3291]'>
-      <div className='flex flex-row'>
-        <div className='max-w-lg pb-10'>
-          <p className='mt-2 ml-2'>29 Speedway: Channel Plus</p>
-          <div className='m-2'>
-            <img src='/images/channelplus.png' />
+      <div className='flex flex-col md:flex-row'>
+        <div className='max-w-lg pb-10 sticky'>
+          <div className='sticky top-2'>
+            <p className='mt-2 ml-2'>29 Speedway: Channel Plus</p>
+            <div className='m-2'>
+              <img src='/images/channelplus.png' />
+            </div>
+            <p className='mt-2 ml-2 mb-6'>
+              Simple tides pull away at the strings that control your sight<br />
+              Anarchy is sound and sound is a fight<br />
+              Drifting into the night a call awakens you<br />
+              Algorithmic buzzing,<br />
+              Who makes music in the sewers?<br />
+              Must be the primordial ooze.<br />
+            </p>
+            <p className='mt-2 ml-2 mb-6 text-xs'>
+              Artwork by Jota Pepsi<br />
+              Mastered by Ben Shirken at 5950.exp in Ridegwood, NY <br />
+            </p>
           </div>
-          <p className='mt-2 ml-2 mb-6'>
-            Simple tides pull away at the strings that control your sight<br />
-            Anarchy is sound and sound is a fight<br />
-            Drifting into the night a call awakens you<br />
-            Algorithmic buzzing,<br />
-            Who makes music in the sewers?<br />
-            Must be the primordial ooze.<br />
-          </p>
           <audio id="audio" style={{ width: '100%' }}>
             <source src={track} type="audio/mp3" />
           </audio>
         </div>
-        <div className='pt-10 pb-10 w-1/2'>
+        <div className='md:pt-10 pb-10 max-w-lg md:w-1/2'>
       {hubData.releases.sort((a,b) => b.accountData.hubContent.datetime - a.accountData.hubContent.datetime).map((release, i) => (
           <>
             <hr />
