@@ -9,12 +9,17 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@nina-protocol/js-sdk": "^0.0.2",
+    "@nina-protocol/js-sdk": "^0.0.8",
+    "@solana/wallet-adapter-base": "^0.9.18",
+    "@solana/wallet-adapter-react": "^0.15.23",
+    "@solana/wallet-adapter-react-ui": "^0.9.21",
+    "@solana/wallet-adapter-wallets": "^0.19.5",
     "autoprefixer": "^10.4.12",
     "next": "12.3.1",
     "postcss": "^8.4.17",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-simple-snackbar": "^1.1.11",
     "tailwind": "^4.0.0",
     "tailwindcss": "^3.1.8"
   },

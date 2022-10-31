@@ -1,36 +1,63 @@
 import { useEffect, useState, useRef, useMemo } from 'react'
 import NinaSdk from '@nina-protocol/js-sdk'
+import { useConnection, useWallet, } from '@solana/wallet-adapter-react';
+import {
+  useWalletModal,
+} from '@solana/wallet-adapter-react-ui';
+import { useSnackbar } from 'react-simple-snackbar'
 
 export default function Home() {
+  const options = {
+    position: 'bottom',
+    style: {
+      backgroundColor: '#2f3291',
+      color: 'white',
+      fontFamily: 'Space Grotesk, sans',
+      fontSize: '20px',
+      textAlign: 'center',
+      cornerRadius: '0px',
+    },
+  }
+  const wallet = useWallet();
+  const { connection } = useConnection();
+  const { setVisible } = useWalletModal();
+  const [openSnackbar] = useSnackbar(options)
   const [hubData, setHubData] = useState(null)
   const [track, setTrack] = useState(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [duration, setDuration] = useState(0)
   const [trackProgress, setTrackProgress] = useState(0)
   const [toggledIds, setToggledIds] = useState([])
-
+  const [releasePurchaseAfterConnection, setReleasePurchaseAfterConnection] = useState(undefined)
   const playerRef = useRef()
   const activeIndexRef = useRef(0)
   const intervalRef = useRef()
 
-  useEffect(() => {
-    const loadHub = async () => {
-      await NinaSdk.client.init(
-        process.env.NINA_API_ENDPOINT,
-        process.env.SOLANA_CLUSTER_URL,
-        process.env.NINA_PROGRAM_ID
-      )      
-      const hub = await NinaSdk.Hub.fetch(process.env.NINA_HUB_ID, true)
-      setHubData(hub)
-      playerRef.current = document.querySelector('#audio')
-    }
+  
+  const loadHub = async () => {
+    await NinaSdk.client.init(
+      process.env.NINA_API_ENDPOINT,
+      process.env.SOLANA_CLUSTER_URL,
+      process.env.NINA_PROGRAM_ID
+    )      
+    const hub = await NinaSdk.Hub.fetch(process.env.NINA_HUB_ID, true)
+    setHubData(hub)
+    playerRef.current = document.querySelector('#audio')
+  }
 
+  useEffect(() => {
     loadHub()
-    
     return () => {
       clearInterval(intervalRef.current)
     }
   }, [])
+
+  useEffect(() => {
+    if (wallet.publicKey && releasePurchaseAfterConnection) {
+      handlePuchaseClick(undefined, releasePurchaseAfterConnection)
+      setReleasePurchaseAfterConnection(undefined)
+    }
+  }, [wallet.publicKey, releasePurchaseAfterConnection])
 
   const trackSelected = (event, release, index) => {
     if (!playerRef.current) {
@@ -113,6 +140,27 @@ export default function Home() {
     setTrackProgress(Math.ceil(playerRef.current.currentTime))
   }
 
+  const handlePuchaseClick = async (e, release) => {
+    if (e) {
+      e.preventDefault()
+    }
+
+    if (!wallet.publicKey) {
+      setVisible(true)
+      setReleasePurchaseAfterConnection(release)
+      return
+    }
+    try {
+      const success = await NinaSdk.Release.purchaseViaHub(release.publicKey, hubData.hub.publicKey, wallet, connection, NinaSdk.client.program)
+      if (success) {
+        await loadHub()
+        openSnackbar(`${release.metadata.properties.artist} - ${release.metadata.properties.title} purchased.`)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   if (!hubData) {
     return <p className='mt-2 ml-2 font-sans text-sm text-[#2f3291]'>Loading...</p>
   }
@@ -143,38 +191,39 @@ export default function Home() {
           </audio>
         </div>
         <div className='md:pt-10 pb-10 md:w-1/2 ms:max-w-lg'>
-      {hubData.releases.sort((a,b) => b.accountData.hubContent.datetime - a.accountData.hubContent.datetime).map((release, i) => (
-          <>
-            <hr />
-            <div className='w-full'>
-              <p className={`ml-2 mr-2 z-100 ${activeIndexRef.current === i ? 'font-bold' : ''} ${toggledIds.includes(i) ? '' : 'truncate'}`}>
-                <span 
-                  className='cursor-pointer'
-                  onClick={(e) => toggle(e, i)}
-                >
-                  {toggledIds.includes(i) ? `[-] ` : `[+] `}
-                </span>
-                <span 
-                  className='cursor-pointer text-ellipsis'
-                  onClick={(e) => trackSelected(e, release, i)}
-                >
-                  {process.env.SHOW_ARTIST_NAME && (`${release.metadata.properties.artist} - `)}{release.metadata.properties.title}
-                </span>
-              </p>
-            </div>
-            {console.log(release.metadata)}
-            {toggledIds.includes(i) && (
-              <div className='m-2'>
-                {/* <img src={release.metadata.image} /> */}
-                <p className='mt-2'>{release.metadata.description}</p>
-                <p className='mt-2'>
-                  <span>{release.accountData.release.remainingSupply} / {release.accountData.release.totalSupply} Remaining |</span> 
-                  <span> {release.accountData.release.price / 1000000} USDC</span>
+          {hubData.releases.sort((a,b) => b.accountData.hubContent.datetime - a.accountData.hubContent.datetime).map((release, i) => (
+            <>
+              <hr />
+              <div className='w-full'>
+                <p className={`ml-2 mr-2 z-100 ${activeIndexRef.current === i ? 'font-bold' : ''} ${toggledIds.includes(i) ? '' : 'truncate'}`}>
+                  <span 
+                    className='cursor-pointer'
+                    onClick={(e) => toggle(e, i)}
+                  >
+                    {toggledIds.includes(i) ? `[-] ` : `[+] `}
+                  </span>
+                  <span 
+                    className='cursor-pointer text-ellipsis'
+                    onClick={(e) => trackSelected(e, release, i)}
+                  >
+                    {process.env.SHOW_ARTIST_NAME && (`${release.metadata.properties.artist} - `)}{release.metadata.properties.title}
+                  </span>
                 </p>
               </div>
-            )}
-          </>
-        ))}
+              {toggledIds.includes(i) && (
+                <div className='m-2'>
+                  {/* <img src={release.metadata.image} /> */}
+                  <p className='mt-2'>{release.metadata.description}</p>
+                  <p className='mt-2'>
+                    <span>{release.accountData.release.remainingSupply} / {release.accountData.release.totalSupply} Remaining</span> 
+                  </p>
+                  <p className='mt-2'>
+                    <span><button className="border border-[#2f3291] p-2" onClick={(e) => handlePuchaseClick(e, release)}> Purchase ({release.accountData.release.price / 1000000} USDC)</button></span>
+                  </p>
+                </div>
+              )}
+            </>
+          ))}
       </div>
 
       </div>
