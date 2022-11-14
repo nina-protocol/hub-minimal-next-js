@@ -6,6 +6,8 @@ import {
 } from '@solana/wallet-adapter-react-ui';
 import { useSnackbar } from 'react-simple-snackbar'
 import { CopyToClipboard } from 'react-copy-to-clipboard';
+import Image from 'next/image'
+import { getImageFromCDN, loader } from '../utils/imageManager'
 
 export default function Home() {
   const options = {
@@ -210,7 +212,14 @@ export default function Home() {
           <div className='sticky top-2'>
             <p className='mt-2 ml-2'>{hubData.hub.data.displayName}</p>
             <div className='m-2'>
-              <img src={hubData.hub.data.image} />
+              <Image
+                loader={loader}
+                width={400}
+                height={400}
+                layout="responsive"
+                src={getImageFromCDN(hubData.hub.data.image, 1000)}
+                priority={true}
+              />
             </div>
             <p className='mt-2 ml-2 mb-6'>
               {hubData.hub.data.description}
@@ -242,10 +251,15 @@ export default function Home() {
               </div>
               {toggledIds.includes(i) && (
                 <div className='max-w-lg'>
-                  <div className='m-2'>
-                    <img
-                      src={release.metadata.image}
+                    <Image
+                      loader={loader}
+                      width={400}
+                      height={400}
+                      layout="responsive"
+                      src={getImageFromCDN(release.metadata.image, 1000)}
+                      priority={true}
                     />
+                  <div className='m-2'>
                     <p className='mt-2'>{release.metadata.description}</p>
                     <p className='mt-2'>
                       <span>{release.accountData.release.remainingSupply} / {release.accountData.release.totalSupply} Remaining</span> 
