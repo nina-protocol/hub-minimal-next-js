@@ -340,10 +340,10 @@
     jsbi "^3.1.5"
     sha.js "^2.4.11"
 
-"@nina-protocol/js-sdk@^0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@nina-protocol/js-sdk/-/js-sdk-0.0.2.tgz#f66586658776b992f3020af48564f6aa28a74f92"
-  integrity sha512-el/e/d2TuYrw4Rhpi0q9T29C9yKxG2xGJr/iNugK3rZv6ApH+7qUVAO8ZYkeDybz2Fu+B/s7RoHZAYJSD1B27g==
+"@nina-protocol/js-sdk@^0.0.8":
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/@nina-protocol/js-sdk/-/js-sdk-0.0.8.tgz#ad8ac467b05675715eaeee2438def3a4cc01efed"
+  integrity sha512-Pcuavl8PZPxNmD4sQxaPs3Exx9tjlSvbUMdtyp9LUr/jlx8vDi7xO77Ueb5h+FHZ9iqGODcUWtuyGJAGoOg5ig==
   dependencies:
     "@project-serum/anchor" "^0.25.0"
     axios "^0.27.2"
@@ -4950,6 +4950,14 @@ raw-body@2.3.3:
     http-errors "1.6.3"
     iconv-lite "0.4.23"
     unpipe "1.0.0"
+
+react-copy-to-clipboard@^5.1.0:
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/react-copy-to-clipboard/-/react-copy-to-clipboard-5.1.0.tgz#09aae5ec4c62750ccb2e6421a58725eabc41255c"
+  integrity sha512-k61RsNgAayIJNoy9yDsYzDe/yAZAzEbEgcz3DZMhF686LEyukcE1hzurxe85JandPUG+yTfGVFzuEw3xt8WP/A==
+  dependencies:
+    copy-to-clipboard "^3.3.1"
+    prop-types "^15.8.1"
 
 react-dom@16.13.1:
   version "16.13.1"

@@ -15,8 +15,8 @@ html,
 body {
   padding: 0;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
-    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  font-family: -apple-system, Helvetica Neue, sans-serif;
+  background-color: white;
 }
 
 a {
@@ -55,35 +55,4 @@ input[type=range]::-webkit-slider-thumb {
 [data-theme="business"] svg path {
   fill: #2D81FF;
   border: 2px solid red;
-}
-
-/*
- * Space Grotesk is a modified version of Space Mono (fixed-width typeface family designed by Colophon Foundry for Google Fonts). 
- * 
- * Florian Karsten
- * https://fonts.floriankarsten.com
- */
-@font-face {
-  font-display: block;
-  font-family: "Space Grotesk";
-  src: url("https://type.cargo.site/files/SpaceGrotesk-Light.woff") format("woff");
-  font-style: normal;
-  font-weight: 300;
-  unicode-range: U+0000-DFFF, U+F900-FFFD;
-}
-@font-face {
-  font-display: block;
-  font-family: "Space Grotesk";
-  src: url("https://type.cargo.site/files/SpaceGrotesk-Regular.woff") format("woff");
-  font-style: normal;
-  font-weight: normal;
-  unicode-range: U+0000-DFFF, U+F900-FFFD;
-}
-@font-face {
-  font-display: block;
-  font-family: "Space Grotesk";
-  src: url("https://type.cargo.site/files/SpaceGrotesk-Bold.woff") format("woff");
-  font-style: normal;
-  font-weight: bold;
-  unicode-range: U+0000-DFFF, U+F900-FFFD;
 }

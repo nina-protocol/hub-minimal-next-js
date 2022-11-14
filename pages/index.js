@@ -5,17 +5,17 @@ import {
   useWalletModal,
 } from '@solana/wallet-adapter-react-ui';
 import { useSnackbar } from 'react-simple-snackbar'
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 
 export default function Home() {
   const options = {
-    position: 'bottom',
+    position: 'top-right',
     style: {
-      backgroundColor: '#2f3291',
+      backgroundColor: '#2d81ff',
       color: 'white',
-      fontFamily: 'Space Grotesk, sans',
-      fontSize: '20px',
+      fontFamily: 'SFMono-Regular, monospace',
+      fontSize: '16px',
       textAlign: 'center',
-      cornerRadius: '0px',
     },
   }
   const wallet = useWallet();
@@ -28,12 +28,14 @@ export default function Home() {
   const [duration, setDuration] = useState(0)
   const [trackProgress, setTrackProgress] = useState(0)
   const [toggledIds, setToggledIds] = useState([])
+  const [seekMousePosition, setSeekMousePosition] = useState(0)
+  const [userCollection, setUserCollection] = useState([])
   const [releasePurchaseAfterConnection, setReleasePurchaseAfterConnection] = useState(undefined)
   const playerRef = useRef()
   const activeIndexRef = useRef(0)
   const intervalRef = useRef()
+  const [shouldScroll, setShouldScroll] = useState(false)
 
-  
   const loadHub = async () => {
     await NinaSdk.client.init(
       process.env.NINA_API_ENDPOINT,
@@ -43,6 +45,20 @@ export default function Home() {
     const hub = await NinaSdk.Hub.fetch(process.env.NINA_HUB_ID, true)
     setHubData(hub)
     playerRef.current = document.querySelector('#audio')
+    
+    if (window.location.hash) {
+      const hash = window.location.hash.substring(1)
+      const releases = hub.releases.sort((a,b) => b.accountData.hubContent.datetime - a.accountData.hubContent.datetime)
+      const index = releases.findIndex(release => release.publicKey === hash)
+      if (index > -1) {
+        setToggledIds([index])
+        setTrack(releases[index].metadata.animation_url)
+        setShouldScroll(true)
+        activeIndexRef.current = index
+        window.location.hash = '#'
+        window.location.hash = '#' + hash
+      }
+    }
   }
 
   useEffect(() => {
@@ -53,25 +69,30 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    if (wallet.publicKey && releasePurchaseAfterConnection) {
-      handlePuchaseClick(undefined, releasePurchaseAfterConnection)
-      setReleasePurchaseAfterConnection(undefined)
+    if (wallet.connected) {
+      getUserCollection()
+      if (releasePurchaseAfterConnection) {
+        handlePuchaseClick(undefined, releasePurchaseAfterConnection)
+        setReleasePurchaseAfterConnection(undefined)
+      }  
     }
-  }, [wallet.publicKey, releasePurchaseAfterConnection])
+  }, [wallet.connected, releasePurchaseAfterConnection])
 
+  const getUserCollection = async () => {
+    const { collected } = await NinaSdk.Account.fetchCollected(wallet.publicKey)
+    setUserCollection(collected.map(release => release.publicKey))
+  }
   const trackSelected = (event, release, index) => {
     if (!playerRef.current) {
       playerRef.current = document.querySelector('#audio')
     }
-    event.preventDefault()
+    event?.preventDefault()
     activeIndexRef.current = index
     if (track === release.metadata.animation_url) {
       if (isPlaying) {
         playerRef.current.pause()
         setIsPlaying(false)
       } else {
-        setTrackProgress(0)
-        setDuration(0)
         playerRef.current.play()
         setIsPlaying(true)
         startTimer()
@@ -105,7 +126,12 @@ export default function Home() {
   }
 
   const hasNext = useMemo(
-    () => activeIndexRef.current + 1 < hubData?.releases.length,
+    () => activeIndexRef.current + 1 <= hubData?.releases.length,
+    [activeIndexRef.current]
+  )
+
+  const hasPrev = useMemo(
+    () => activeIndexRef.current - 1 >= 0,
     [activeIndexRef.current]
   )
 
@@ -135,14 +161,26 @@ export default function Home() {
   }
 
   const seek = (e) => {
+    if (playerRef.current.duration) {
+      const percent = e.nativeEvent.offsetX / e.currentTarget.offsetWidth
+      playerRef.current.currentTime = percent * playerRef.current.duration
+      setTrackProgress(Math.ceil(playerRef.current.currentTime))
+    }
+  }
+
+  const mouseEnterSeekbar = (e) => {
     const percent = e.nativeEvent.offsetX / e.currentTarget.offsetWidth
-    playerRef.current.currentTime = percent * playerRef.current.duration
-    setTrackProgress(Math.ceil(playerRef.current.currentTime))
+    console.log('percent * playerRef.current.duration', percent * playerRef.current.duration)
+    setSeekMousePosition(percent * playerRef.current.duration)
   }
 
   const handlePuchaseClick = async (e, release) => {
     if (e) {
       e.preventDefault()
+    }
+
+    if (release.accountData.release.remainingSupply <= 0) {
+      return
     }
 
     if (!wallet.publicKey) {
@@ -162,28 +200,20 @@ export default function Home() {
   }
 
   if (!hubData) {
-    return <p className='mt-2 ml-2 font-sans text-sm text-[#2f3291]'>Loading...</p>
+    return <p className='mt-2 ml-2 text-sm text-black font-mono'>Loading...</p>
   }
+  
   return (
-    <div className='flex flex-col h-screen justify-between font-sans text-sm overflow-x-hidden text-[#2f3291]'>
+    <div className='flex flex-col h-screen justify-between text-sm font-mono overflow-x-hidden text-black'>
       <div className='flex flex-col md:flex-row'>
         <div className='max-w-lg pb-10 sticky'>
           <div className='sticky top-2'>
-            <p className='mt-2 ml-2'>29 Speedway: Channel Plus</p>
+            <p className='mt-2 ml-2'>{hubData.hub.data.displayName}</p>
             <div className='m-2'>
-              <img src='/images/channelplus.png' />
+              <img src={hubData.hub.data.image} />
             </div>
             <p className='mt-2 ml-2 mb-6'>
-              Simple tides pull away at the strings that control your sight<br />
-              Anarchy is sound and sound is a fight<br />
-              Drifting into the night a call awakens you<br />
-              Algorithmic buzzing,<br />
-              Who makes music in the sewers?<br />
-              Must be the primordial ooze.<br />
-            </p>
-            <p className='mt-2 ml-2 mb-6 text-xs'>
-              Artwork by Jota Pepsi<br />
-              Mastered by Ben Shirken at 5950.exp in Ridegwood, NY <br />
+              {hubData.hub.data.description}
             </p>
           </div>
           <audio id="audio" style={{ width: '100%' }}>
@@ -193,8 +223,8 @@ export default function Home() {
         <div className='md:pt-10 pb-10 md:w-1/2 ms:max-w-lg'>
           {hubData.releases.sort((a,b) => b.accountData.hubContent.datetime - a.accountData.hubContent.datetime).map((release, i) => (
             <>
-              <hr />
-              <div className='w-full'>
+              <hr id={release.publicKey} />
+              <div className='w-full mt-2 mb-2'>
                 <p className={`ml-2 mr-2 z-100 ${activeIndexRef.current === i ? 'font-bold' : ''} ${toggledIds.includes(i) ? '' : 'truncate'}`}>
                   <span 
                     className='cursor-pointer'
@@ -211,15 +241,37 @@ export default function Home() {
                 </p>
               </div>
               {toggledIds.includes(i) && (
-                <div className='m-2'>
-                  {/* <img src={release.metadata.image} /> */}
-                  <p className='mt-2'>{release.metadata.description}</p>
-                  <p className='mt-2'>
-                    <span>{release.accountData.release.remainingSupply} / {release.accountData.release.totalSupply} Remaining</span> 
-                  </p>
-                  <p className='mt-2'>
-                    <span><button className="border border-[#2f3291] p-2" onClick={(e) => handlePuchaseClick(e, release)}> Purchase ({release.accountData.release.price / 1000000} USDC)</button></span>
-                  </p>
+                <div className='max-w-lg'>
+                  <div className='m-2'>
+                    <img
+                      src={release.metadata.image}
+                    />
+                    <p className='mt-2'>{release.metadata.description}</p>
+                    <p className='mt-2'>
+                      <span>{release.accountData.release.remainingSupply} / {release.accountData.release.totalSupply} Remaining</span> 
+                    </p>
+                    {userCollection.includes(release.publicKey) && (
+                      <p className='mt-2 font-bold'>
+                        <span>You own this release</span>
+                      </p>
+                    )}
+                    <p className='mt-2'>
+                      <span>
+                        <button
+                          className="border border-[#000] p-2 disabled:opacity-50"
+                          onClick={(e) => handlePuchaseClick(e, release)}
+                          disabled={release.accountData.release.remainingSupply <= 0}>
+                            {release.accountData.release.remainingSupply > 0 ? `${wallet.publicKey ? '' : 'Connect to '}Purchase (${(release.accountData.release.price / 1000000).toFixed(2)} USDC)` : 'Sold Out'}
+                        </button>
+                      </span>
+                    </p>
+                    <CopyToClipboard 
+                      text={`${window.location.origin}/#${release.publicKey}`}
+                      onCopy={() => openSnackbar('Release link copied.')}
+                    >
+                      <p className='mt-2 text-xs cursor-pointer'>Permalink</p>
+                    </CopyToClipboard>
+                  </div>
                 </div>
               )}
             </>
@@ -228,23 +280,40 @@ export default function Home() {
 
       </div>
       <footer className='h-10 fixed bottom-0 w-full'>
-        <div className='bg-white h-full border-2 border-[#2f3291] justify-between'>
+        <div className='bg-[#fff] h-full border-2 border-[#000] justify-between'>
           <div className='h-1/2 truncate'>
+            <button
+              className={`mr-4 ml-2 disabled:opacity-50`}
+              disabled={!hasPrev}
+              onClick={(e) => trackSelected(e, hubData.releases[activeIndexRef.current - 1], activeIndexRef.current - 1)}
+              >
+              {'<<'}
+            </button>
             <button
               className='mr-4'
               onClick={(e) => trackSelected(e, hubData.releases[activeIndexRef.current], activeIndexRef.current)}
             >
               {isPlaying ? `Pause` : `Play`}
             </button>
+            <button
+              className='mr-4 disabled:opacity-50'
+              disabled={!hasNext}
+              onClick={(e) => trackSelected(e, hubData.releases[activeIndexRef.current + 1], activeIndexRef.current + 1)}
+              >
+              {'>>'}
+            </button>
             {hubData.releases[activeIndexRef.current].metadata.properties.artist} - {hubData.releases[activeIndexRef.current].metadata.properties.title}
           </div>
           <div
-            className='h-1/2 w-full'
+            className='h-1/2 w-full cursor-pointer'
             onClick={(e) => seek(e)}
+            onMouseEnter={(e) => mouseEnterSeekbar(e)}
+            onMouseMove={(e) => mouseEnterSeekbar(e)}
+            onMouseLeave={(e) => setSeekMousePosition(0)}
           >
             <div 
               id='seek'
-              className='bg-[#2f3291] h-full'
+              className='bg-[#000] h-full'
               style={{ width: `${(trackProgress / duration * 100) || 0}%` }}
              />
           </div>
