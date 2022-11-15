@@ -15,6 +15,42 @@ const HomePage = (props) => {
   return (
     <>
       <Head>
+        <meta name="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="icon" href="/images/favicon.ico" />
+        <link rel="apple-touch-icon" href="/images/logo192.png" />
+        <link rel="manifest" href="/manifest.json" />
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/images/apple-touch-icon.png"
+        />
+        <link
+          rel="shortcut icon"
+          type="image/png"
+          sizes="32x32"
+          href="/images/favicon-32x32.png"
+        />
+        <link
+          rel="shortcut icon"
+          type="image/png"
+          sizes="16x16"
+          href="/images/favicon-16x16.png"
+        />
+        <link rel="manifest" href="/site.webmanifest" />
+        <script
+          defer
+          src="https://www.googletagmanager.com/gtag/js?id=G-VDD58V1D22"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-VDD58V1D22', { page_path: window.location.pathname, app_name: 'nights' });
+            `,
+          }}
+        />
         <title>{title}</title>
         <meta
           name="description"
@@ -65,8 +101,6 @@ export const getServerSideProps = async (context) => {
     if (query.r) {
       release = hub.releases.find((r) => r.publicKey === query.r)
     }
-    console.log('release', release)
-    console.log('hub', hub)
     return {props: {
       release,
       hub,
