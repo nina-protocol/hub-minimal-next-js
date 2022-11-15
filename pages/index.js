@@ -95,16 +95,15 @@ export const getServerSideProps = async (context) => {
       )
     }
 
-    let release = undefined;
     let hub = await NinaSdk.Hub.fetch(process.env.NINA_HUB_ID)
-
-    if (query.r) {
-      release = hub.releases.find((r) => r.publicKey === query.r)
-    }
-    return {props: {
-      release,
+    const props = {
       hub,
-    }}
+    }
+    if (query.r) {
+      let release = hub.releases.find((r) => r.publicKey === query.r)
+      props.release = release
+    }
+    return {props}
   } catch (error) {
     console.warn(error);
     return {props: {}}

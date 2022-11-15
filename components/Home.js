@@ -65,7 +65,6 @@ const Home = () => {
     const hub = await NinaSdk.Hub.fetch(process.env.NINA_HUB_ID, true)
     setHubData(hub)
     playerRef.current = document.querySelector('#audio')
-    console.log('window.location.hash', window.location)
     if (window.location.search.length > 0) {
       const hash = window.location.search.replace('?r=', '')
       const releases = hub.releases.sort((a,b) => b.accountData.hubContent.datetime - a.accountData.hubContent.datetime)
@@ -89,7 +88,7 @@ const Home = () => {
   useEffect(() => {
     if (shouldScroll) {
       const hash = window.location.search.replace('?r=', '')
-      const section = document.querySelector( `#${hash}` );
+      const section = document.querySelector( `#release-${hash}` );
       section.scrollIntoView( { behavior: 'auto', block: 'start' } );
       setShouldScroll(false)
     }
@@ -257,7 +256,7 @@ const Home = () => {
         <div className='md:pt-10 pb-10 md:pl-10 md:w-1/2 ms:max-w-lg'>
           {hubData.releases.sort((a,b) => b.accountData.hubContent.datetime - a.accountData.hubContent.datetime).map((release, i) => (
             <>
-              <hr id={release.publicKey} />
+              <hr id={`release-${release.publicKey}`} />
               <div className='w-full mt-2 mb-2'>
                 <p className={`ml-2 mr-2 z-100 ${activeIndexRef.current === i ? 'font-bold' : ''} ${toggledIds.includes(i) ? '' : 'truncate'}`}>
                   <span 
