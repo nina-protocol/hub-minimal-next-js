@@ -257,16 +257,16 @@ const Home = () => {
           {hubData.releases.sort((a,b) => b.accountData.hubContent.datetime - a.accountData.hubContent.datetime).map((release, i) => (
             <>
               <hr id={`release-${release.publicKey}`} />
-              <div className='w-full mt-2 mb-2'>
-                <p className={`ml-2 mr-2 z-100 ${activeIndexRef.current === i ? 'font-bold' : ''} ${toggledIds.includes(i) ? '' : 'truncate'}`}>
+              <div className='w-full mb-2 mt-2'>
+                <p className={`z-100 ${activeIndexRef.current === i ? 'font-bold' : ''} ${toggledIds.includes(i) ? '' : 'truncate'}`}>
                   <span 
-                    className='cursor-pointer'
+                    className='p-2 cursor-pointer'
                     onClick={(e) => toggle(e, i)}
                   >
                     {toggledIds.includes(i) ? `[-] ` : `[+] `}
                   </span>
                   <span 
-                    className='cursor-pointer text-ellipsis'
+                    className='pb-2 pt-2 cursor-pointer text-ellipsis'
                     onClick={(e) => trackSelected(e, release, i)}
                   >
                     {process.env.SHOW_ARTIST_NAME && (`${release.metadata.properties.artist} - `)}{release.metadata.properties.title}
@@ -275,7 +275,10 @@ const Home = () => {
               </div>
               {toggledIds.includes(i) && (
                 <div className='max-w-lg'>
-                  <div className='m-2'>
+                  <div
+                    className='m-2 cursor-pointer'
+                    onClick={(e) => trackSelected(e, release, i)} 
+                  >
                     <Image
                       loader={loader}
                       width={400}
@@ -285,7 +288,7 @@ const Home = () => {
                       priority={true}
                     />
                   </div>
-                  <div className='m-2 ml-4 mr-4'>
+                  <div className='ml-4 mr-4'>
                     <p className='mt-2'>{release.metadata.description}</p>
                     <p className='mt-2'>
                       <span>{release.accountData.release.remainingSupply} / {release.accountData.release.totalSupply} Remaining</span> 
@@ -309,7 +312,7 @@ const Home = () => {
                       text={`${window.location.origin}/?r=${release.publicKey}`}
                       onCopy={() => openSnackbar('Release link copied.')}
                     >
-                      <p className='mt-2 text-xs cursor-pointer'>Permalink</p>
+                      <p className='pt-2 pr-2 pb-2 text-xs cursor-pointer'>Permalink</p>
                     </CopyToClipboard>
                   </div>
                 </div>
@@ -323,20 +326,20 @@ const Home = () => {
         <div className='bg-[#fff] h-full border-2 border-[#000] justify-between'>
           <div className='h-1/2 truncate'>
             <button
-              className={`mr-4 ml-2 disabled:opacity-50`}
+              className={`pr-2 pb-2 pl-2 disabled:opacity-50`}
               disabled={!hasPrev}
               onClick={(e) => trackSelected(e, hubData.releases[activeIndexRef.current - 1], activeIndexRef.current - 1)}
               >
               {'<<'}
             </button>
             <button
-              className='mr-4'
+              className='pr-2 pb-2 pl-2'
               onClick={(e) => trackSelected(e, hubData.releases[activeIndexRef.current], activeIndexRef.current)}
             >
               {isPlaying ? `Pause` : `Play`}
             </button>
             <button
-              className='mr-4 disabled:opacity-50'
+              className='pr-2 pb-2 pl-2 disabled:opacity-50'
               disabled={!hasNext}
               onClick={(e) => trackSelected(e, hubData.releases[activeIndexRef.current + 1], activeIndexRef.current + 1)}
               >
