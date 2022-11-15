@@ -226,15 +226,15 @@ const Home = () => {
   }
 
   if (!hubData) {
-    return <p className='mt-2 ml-2 text-sm text-black font-mono'>Loading...</p>
+    return <p className='mt-2 ml-2 font-mono text-sm text-black'>Loading...</p>
   }
   
   return (
-    <div className='flex flex-col h-screen justify-between text-sm font-mono overflow-x-hidden text-black'>
+    <div className='flex flex-col justify-between h-screen overflow-x-hidden font-mono text-sm text-black'>
       <div className='flex flex-col md:flex-row'>
-        <div className='max-w-lg sticky'>
-          <div className='sticky top-2'>
-            <p className='mt-2 ml-2 mb-2'>{hubData.hub.data.displayName}</p>
+        <div className='sticky max-w-lg'>
+          <div className='sticky ml-2 top-2'>
+            <p className='mt-2 mb-2 ml-2'>{hubData.hub.data.displayName}</p>
             <div className='m-1'>
               <Image
                 loader={loader}
@@ -245,7 +245,7 @@ const Home = () => {
                 priority={true}
               />
             </div>
-            <p className='mt-2 ml-2'>
+            <p className='mt-2 ml-1'>
               {hubData.hub.data.description}
             </p>
           </div>
@@ -253,11 +253,11 @@ const Home = () => {
             <source src={track} type="audio/mp3" />
           </audio>
         </div>
-        <div className='md:pt-10 pb-10 md:pl-10 md:w-1/2 ms:max-w-lg'>
+        <div className='pb-10 md:pt-10 md:pl-10 md:w-1/2 ms:max-w-lg'>
           {hubData.releases.sort((a,b) => b.accountData.hubContent.datetime - a.accountData.hubContent.datetime).map((release, i) => (
             <>
               <hr id={`release-${release.publicKey}`} />
-              <div className='w-full mb-2 mt-2'>
+              <div className='w-full mt-2 mb-2'>
                 <p className={`z-100 ${activeIndexRef.current === i ? 'font-bold' : ''} ${toggledIds.includes(i) ? '' : 'truncate'}`}>
                   <span 
                     className='p-2 cursor-pointer'
@@ -266,7 +266,7 @@ const Home = () => {
                     {toggledIds.includes(i) ? `[-] ` : `[+] `}
                   </span>
                   <span 
-                    className='pb-2 pt-2 cursor-pointer text-ellipsis'
+                    className='pt-2 pb-2 cursor-pointer text-ellipsis'
                     onClick={(e) => trackSelected(e, release, i)}
                   >
                     {process.env.SHOW_ARTIST_NAME && (`${release.metadata.properties.artist} - `)}{release.metadata.properties.title}
@@ -312,7 +312,7 @@ const Home = () => {
                       text={`${window.location.origin}/?r=${release.publicKey}`}
                       onCopy={() => openSnackbar('Release link copied.')}
                     >
-                      <p className='pt-2 pr-2 pb-2 text-xs cursor-pointer'>Permalink</p>
+                      <p className='pt-2 pb-2 pr-2 text-xs cursor-pointer'>Permalink</p>
                     </CopyToClipboard>
                   </div>
                 </div>
@@ -322,9 +322,9 @@ const Home = () => {
       </div>
 
       </div>
-      <footer className='h-10 fixed bottom-0 w-full'>
-        <div className='bg-[#fff] h-full border-2 border-[#000] justify-between'>
-          <div className='h-1/2 truncate'>
+      <footer className='fixed bottom-0 w-full h-12'>
+        <div className='bg-[#fff] h-full border-2 border-[#000] justify-between border-x-0'>
+          <div className='mt-1 truncate h-1/2'>
             <button
               className={`pr-2 pb-2 pl-2 disabled:opacity-50`}
               disabled={!hasPrev}
@@ -333,13 +333,13 @@ const Home = () => {
               {'<<'}
             </button>
             <button
-              className='pr-2 pb-2 pl-2'
+              className='pb-2 pl-2 pr-2'
               onClick={(e) => trackSelected(e, hubData.releases[activeIndexRef.current], activeIndexRef.current)}
             >
               {isPlaying ? `Pause` : `Play`}
             </button>
             <button
-              className='pr-2 pb-2 pl-2 disabled:opacity-50'
+              className='pb-2 pl-2 pr-2 disabled:opacity-50'
               disabled={!hasNext}
               onClick={(e) => trackSelected(e, hubData.releases[activeIndexRef.current + 1], activeIndexRef.current + 1)}
               >
@@ -353,7 +353,7 @@ const Home = () => {
                 )}]`}
           </div>
           <div
-            className='h-1/2 w-full cursor-pointer'
+            className='w-full cursor-pointer h-1/2'
             onClick={(e) => seek(e)}
             // onMouseEnter={(e) => mouseEnterSeekbar(e)}
             // onMouseMove={(e) => mouseEnterSeekbar(e)}
