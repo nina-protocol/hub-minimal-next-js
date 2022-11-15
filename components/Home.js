@@ -232,7 +232,7 @@ const Home = () => {
   return (
     <div className='flex flex-col h-screen justify-between text-sm font-mono overflow-x-hidden text-black'>
       <div className='flex flex-col md:flex-row'>
-        <div className='max-w-lg pb-10 sticky'>
+        <div className='max-w-lg sticky'>
           <div className='sticky top-2'>
             <p className='mt-2 ml-2 mb-2'>{hubData.hub.data.displayName}</p>
             <div className='m-1'>
@@ -245,7 +245,7 @@ const Home = () => {
                 priority={true}
               />
             </div>
-            <p className='mt-2 ml-2 mb-6'>
+            <p className='mt-2 ml-2'>
               {hubData.hub.data.description}
             </p>
           </div>
