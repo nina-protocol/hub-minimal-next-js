@@ -57,8 +57,6 @@ export default function Home() {
         setTrack(releases[index].metadata.animation_url)
         setShouldScroll(true)
         activeIndexRef.current = index
-        window.location.hash = '#'
-        window.location.hash = '#' + hash
       }
     }
   }
@@ -70,6 +68,14 @@ export default function Home() {
     }
   }, [])
 
+  useEffect(() => {
+    if (shouldScroll) {
+      const hash = window.location.hash.substring(1)
+      window.location.hash = '#'
+      window.location.hash = '#' + hash
+      setShouldScroll(false)
+    }
+  }, [shouldScroll])
   useEffect(() => {
     if (wallet.connected) {
       getUserCollection()
@@ -170,11 +176,10 @@ export default function Home() {
     }
   }
 
-  const mouseEnterSeekbar = (e) => {
-    const percent = e.nativeEvent.offsetX / e.currentTarget.offsetWidth
-    console.log('percent * playerRef.current.duration', percent * playerRef.current.duration)
-    setSeekMousePosition(percent * playerRef.current.duration)
-  }
+  // const mouseEnterSeekbar = (e) => {
+  //   const percent = e.nativeEvent.offsetX / e.currentTarget.offsetWidth
+  //   setSeekMousePosition(percent * playerRef.current.duration)
+  // }
 
   const handlePuchaseClick = async (e, release) => {
     if (e) {
@@ -210,8 +215,8 @@ export default function Home() {
       <div className='flex flex-col md:flex-row'>
         <div className='max-w-lg pb-10 sticky'>
           <div className='sticky top-2'>
-            <p className='mt-2 ml-2'>{hubData.hub.data.displayName}</p>
-            <div className='m-2'>
+            <p className='mt-2 ml-2 mb-2'>{hubData.hub.data.displayName}</p>
+            <div className='m-1'>
               <Image
                 loader={loader}
                 width={400}
@@ -251,6 +256,7 @@ export default function Home() {
               </div>
               {toggledIds.includes(i) && (
                 <div className='max-w-lg'>
+                  <div className='m-2'>
                     <Image
                       loader={loader}
                       width={400}
@@ -259,7 +265,8 @@ export default function Home() {
                       src={getImageFromCDN(release.metadata.image, 1000)}
                       priority={true}
                     />
-                  <div className='m-2'>
+                  </div>
+                  <div className='m-2 ml-4 mr-4'>
                     <p className='mt-2'>{release.metadata.description}</p>
                     <p className='mt-2'>
                       <span>{release.accountData.release.remainingSupply} / {release.accountData.release.totalSupply} Remaining</span> 
@@ -321,9 +328,9 @@ export default function Home() {
           <div
             className='h-1/2 w-full cursor-pointer'
             onClick={(e) => seek(e)}
-            onMouseEnter={(e) => mouseEnterSeekbar(e)}
-            onMouseMove={(e) => mouseEnterSeekbar(e)}
-            onMouseLeave={(e) => setSeekMousePosition(0)}
+            // onMouseEnter={(e) => mouseEnterSeekbar(e)}
+            // onMouseMove={(e) => mouseEnterSeekbar(e)}
+            // onMouseLeave={(e) => setSeekMousePosition(0)}
           >
             <div 
               id='seek'
