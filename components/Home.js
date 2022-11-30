@@ -7,7 +7,6 @@ import {
 import { useSnackbar } from 'react-simple-snackbar'
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import Image from 'next/image'
-import { getImageFromCDN, loader } from '../utils/imageManager'
 
 const formatDuration = (duration) => {
   let sec_num = parseInt(duration, 10)
@@ -48,13 +47,13 @@ const Home = () => {
   const [duration, setDuration] = useState(0)
   const [trackProgress, setTrackProgress] = useState(0)
   const [toggledIds, setToggledIds] = useState([])
-  // const [seekMousePosition, setSeekMousePosition] = useState(0)
   const [userCollection, setUserCollection] = useState([])
   const [releasePurchaseAfterConnection, setReleasePurchaseAfterConnection] = useState(undefined)
   const playerRef = useRef()
   const activeIndexRef = useRef(0)
   const intervalRef = useRef()
   const [shouldScroll, setShouldScroll] = useState(false)
+  const [pendingPurchase, setPendingPurchase] = useState([])
 
   const loadHub = async () => {
     await NinaSdk.client.init(
@@ -195,11 +194,6 @@ const Home = () => {
     }
   }
 
-  // const mouseEnterSeekbar = (e) => {
-  //   const percent = e.nativeEvent.offsetX / e.currentTarget.offsetWidth
-  //   setSeekMousePosition(percent * playerRef.current.duration)
-  // }
-
   const handlePuchaseClick = async (e, release) => {
     if (e) {
       e.preventDefault()
@@ -215,11 +209,13 @@ const Home = () => {
       return
     }
     try {
+      setPendingPurchase([...pendingPurchase, release.publicKey])
       const success = await NinaSdk.Release.purchaseViaHub(release.publicKey, hubData.hub.publicKey, wallet, connection, NinaSdk.client.program)
       if (success) {
         await loadHub()
         openSnackbar(`${release.metadata.properties.artist} - ${release.metadata.properties.title} purchased.`)
       }
+      setPendingPurchase(pendingPurchase.filter(key => key !== release.publicKey))
     } catch (error) {
       console.log(error)
     }
@@ -237,11 +233,10 @@ const Home = () => {
             <p className='mt-2 mb-2 ml-2'>{hubData.hub.data.displayName}</p>
             <div className='m-1'>
               <Image
-                loader={loader}
                 width={400}
                 height={400}
                 layout="responsive"
-                src={getImageFromCDN(hubData.hub.data.image, 1000)}
+                src={hubData.hub.data.image}
                 priority={true}
               />
             </div>
@@ -280,16 +275,15 @@ const Home = () => {
                     onClick={(e) => trackSelected(e, release, i)} 
                   >
                     <Image
-                      loader={loader}
                       width={400}
                       height={400}
                       layout="responsive"
-                      src={getImageFromCDN(release.metadata.image, 1000)}
+                      src={release.metadata.image}
                       priority={true}
                     />
                   </div>
                   <div className='ml-4 mr-4'>
-                    <p className='mt-2'>{release.metadata.description}</p>
+                    <p className='mt-2'>{release.metadata.description.replaceAll(`${'\\\"'}`, "\"")}</p>
                     <p className='mt-2'>
                       <span>{release.accountData.release.remainingSupply} / {release.accountData.release.totalSupply} Remaining</span> 
                     </p>
@@ -301,10 +295,12 @@ const Home = () => {
                     <p className='mt-2'>
                       <span>
                         <button
-                          className="border border-[#000] p-2 disabled:opacity-50"
+                          className="border border-[#000] p-2 disabled:opacity-50 hover:opacity-50"
                           onClick={(e) => handlePuchaseClick(e, release)}
                           disabled={release.accountData.release.remainingSupply <= 0}>
-                            {release.accountData.release.remainingSupply > 0 ? `${wallet.publicKey ? '' : 'Connect to '}Purchase (${(release.accountData.release.price / 1000000).toFixed(2)} USDC)` : 'Sold Out'}
+                            {pendingPurchase.includes(release.publicKey) && 'Confirm transaction in wallet...'}
+                            {!pendingPurchase.includes(release.publicKey) && release.accountData.release.remainingSupply > 0 && `${wallet.publicKey ? '' : 'Connect to '}Purchase (${(release.accountData.release.price / 1000000).toFixed(2)} USDC)`}
+                            {!pendingPurchase.includes(release.publicKey) && release.accountData.release.remainingSupply == 0 && 'Sold Out'}
                         </button>
                       </span>
                     </p>
@@ -355,9 +351,6 @@ const Home = () => {
           <div
             className='w-full cursor-pointer h-1/2'
             onClick={(e) => seek(e)}
-            // onMouseEnter={(e) => mouseEnterSeekbar(e)}
-            // onMouseMove={(e) => mouseEnterSeekbar(e)}
-            // onMouseLeave={(e) => setSeekMousePosition(0)}
           >
             <div 
               id='seek'
