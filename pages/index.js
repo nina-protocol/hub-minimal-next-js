@@ -37,20 +37,6 @@ const HomePage = (props) => {
           href="/images/favicon-16x16.png"
         />
         <link rel="manifest" href="/site.webmanifest" />
-        <script
-          defer
-          src="https://www.googletagmanager.com/gtag/js?id=G-VDD58V1D22"
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-VDD58V1D22', { page_path: window.location.pathname, app_name: 'nights' });
-            `,
-          }}
-        />
         <title>{title}</title>
         <meta
           name="description"
