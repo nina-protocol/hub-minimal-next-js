@@ -1,5 +1,11 @@
 This Repo is intended to show a minimal implementation of self hosted Hub.  It is meant to look nice enough to be used by simply cloning the repo and inserting your own Hub handle.  It allow shows basic use of the `@nina-protocol/js-sdk` package as well as a basic app using the `@solana/wallet-adapter-react` package.
 
+
+## Example
+
+This template was used to create the Nina Night site: [https://nights.ninaprotocol.com/](https://nights.ninaprotocol.com/)
+
+
 ## Getting Started
 
 1. Copy contents of `.env.template` into `.env` at project root
